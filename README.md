@@ -46,7 +46,7 @@ Please cite SSD in your publications if it helps your research:
 
 ### 安装
 1. 下载代码。假设把Caffe克隆到目录`$CAFFE_ROOT`下   
-  ```终端   
+```终端   
   git clone https://github.com/weiliu89/caffe.git
   cd caffe
   git checkout ssd
@@ -54,7 +54,7 @@ Please cite SSD in your publications if it helps your research:
 
 2. Build 代码. 按照 [Caffe instruction](http://caffe.berkeleyvision.org/installation.html) 安装
   必要的packages，然后build。      
-  ```终端   
+  ```终端   
   # 根据Caffe安装的方式修改Makefile.config。
   cp Makefile.config.example Makefile.config
   make -j8
