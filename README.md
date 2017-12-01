@@ -39,81 +39,82 @@ Please cite SSD in your publications if it helps your research:
     }
 
 ### Contents
-1. [Installation](#installation)
-2. [Preparation](#preparation)
-3. [Train/Eval](#traineval)
-4. [Models](#models)
+1. [安装](#installation)
+2. [预备](#preparation)
+3. [训练/评估](#traineval)
+4. [模型](#models)
 
-### Installation
-1. Get the code. We will call the directory that you cloned Caffe into `$CAFFE_ROOT`
-  ```Shell
-  git clone https://github.com/weiliu89/caffe.git
+### 安装
+1. 下载代码。假设把Caffe克隆到目录`$CAFFE_ROOT`下
+  ```终端   
+  git clone https://github.com/weiliu89/caffe.git
   cd caffe
   git checkout ssd
   ```
 
-2. Build the code. Please follow [Caffe instruction](http://caffe.berkeleyvision.org/installation.html) to install all necessary packages and build it.
-  ```Shell
-  # Modify Makefile.config according to your Caffe installation.
+2. Build 代码. 按照 [Caffe instruction](http://caffe.berkeleyvision.org/installation.html) 安装
+  必要的packages，然后build。   
+  ```终端   
+  # 根据Caffe安装的方式修改Makefile.config。
   cp Makefile.config.example Makefile.config
   make -j8
-  # Make sure to include $CAFFE_ROOT/python to your PYTHONPATH.
+  # 确保include $CAFFE_ROOT/python到PYTHONPATH环境变量内.
   make py
   make test -j8
-  # (Optional)
-  make runtest -j8
+  # 运行测试，可选   
+  make runtest -j8
   ```
 
-### Preparation
-1. Download [fully convolutional reduced (atrous) VGGNet](https://gist.github.com/weiliu89/2ed6e13bfd5b57cf81d6). By default, we assume the model is stored in `$CAFFE_ROOT/models/VGGNet/`
+### 预备
+1. 下载 [fully convolutional reduced (atrous) VGGNet](https://gist.github.com/weiliu89/2ed6e13bfd5b57cf81d6). 假设文件被下载到了`$CAFFE_ROOT/models/VGGNet/`目录
 
-2. Download VOC2007 and VOC2012 dataset. By default, we assume the data is stored in `$HOME/data/`
-  ```Shell
-  # Download the data.
+2. 下载VOC2007和VOC2012数据集. 假设下载到了`$HOME/data/`目录
+  ```Shell
+  # 下载数据.
   cd $HOME/data
   wget http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
   wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
   wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
-  # Extract the data.
+  # 解压数据.
   tar -xvf VOCtrainval_11-May-2012.tar
   tar -xvf VOCtrainval_06-Nov-2007.tar
   tar -xvf VOCtest_06-Nov-2007.tar
   ```
 
-3. Create the LMDB file.
+3. 创建LMDB文件.
   ```Shell
   cd $CAFFE_ROOT
   # Create the trainval.txt, test.txt, and test_name_size.txt in data/VOC0712/
   ./data/VOC0712/create_list.sh
-  # You can modify the parameters in create_data.sh if needed.
-  # It will create lmdb files for trainval and test with encoded original image:
+  # 如有必要，可以按需修改create_data.sh文件.
+  # 编码trainval和test原始图像，生成lmdb文件:
   #   - $HOME/data/VOCdevkit/VOC0712/lmdb/VOC0712_trainval_lmdb
   #   - $HOME/data/VOCdevkit/VOC0712/lmdb/VOC0712_test_lmdb
   # and make soft links at examples/VOC0712/
   ./data/VOC0712/create_data.sh
   ```
 
-### Train/Eval
-1. Train your model and evaluate the model on the fly.
+### 训练/评估
+1. 训练你自己的模型并评估.
   ```Shell
-  # It will create model definition files and save snapshot models in:
+  # 创建模型定义文件并保存模型训练快照到如下路径:
   #   - $CAFFE_ROOT/models/VGGNet/VOC0712/SSD_300x300/
   # and job file, log file, and the python script in:
   #   - $CAFFE_ROOT/jobs/VGGNet/VOC0712/SSD_300x300/
-  # and save temporary evaluation results in:
+  # 保存当前评估结果到:
   #   - $HOME/data/VOCdevkit/results/VOC2007/SSD_300x300/
-  # It should reach 77.* mAP at 120k iterations.
+  # 120K次迭代之后，应该可以达到77.*的mAP.
   python examples/ssd/ssd_pascal.py
   ```
-  If you don't have time to train your model, you can download a pre-trained model at [here](https://drive.google.com/open?id=0BzKzrI_SkD1_WVVTSmQxU0dVRzA).
+  如果不乐意自己训练模型，可以在[here](https://drive.google.com/open?id=0BzKzrI_SkD1_WVVTSmQxU0dVRzA)下载预训练好的模型.注意是用PASCAL VOC数据集训练的。
 
-2. Evaluate the most recent snapshot.
+2. 使用最新模型快照评估模型.
   ```Shell
-  # If you would like to test a model you trained, you can do:
+  # 如果你需要对训练的模型进行评估，执行脚本:
   python examples/ssd/score_ssd_pascal.py
   ```
 
-3. Test your model using a webcam. Note: press <kbd>esc</kbd> to stop.
+3. 使用webcam摄像头测试模型. 注意: 按 <kbd>esc</kbd> 停止.
   ```Shell
   # If you would like to attach a webcam to a model you trained, you can do:
   python examples/ssd/ssd_pascal_webcam.py
