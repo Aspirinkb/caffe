@@ -69,7 +69,7 @@ Please cite SSD in your publications if it helps your research:
 1. 下载 [fully convolutional reduced (atrous) VGGNet](https://gist.github.com/weiliu89/2ed6e13bfd5b57cf81d6). 假设文件被下载到了`$CAFFE_ROOT/models/VGGNet/`目录   
 
 2. 下载VOC2007和VOC2012数据集. 假设下载到了`$HOME/data/`目录   
-  ```Shell
+```Shell
   # 下载数据.
   cd $HOME/data
   wget http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
@@ -82,7 +82,7 @@ Please cite SSD in your publications if it helps your research:
   ```
 
 3. 创建LMDB文件.   
-  ```Shell
+```Shell
   cd $CAFFE_ROOT
   # Create the trainval.txt, test.txt, and test_name_size.txt in data/VOC0712/
   ./data/VOC0712/create_list.sh
@@ -96,7 +96,7 @@ Please cite SSD in your publications if it helps your research:
 
 ### 训练/评估   
 1. 训练你自己的模型并评估.   
-  ```Shell
+```Shell
   # 创建模型定义文件并保存模型训练快照到如下路径:
   #   - $CAFFE_ROOT/models/VGGNet/VOC0712/SSD_300x300/
   # and job file, log file, and the python script in:
@@ -109,13 +109,13 @@ Please cite SSD in your publications if it helps your research:
   如果不乐意自己训练模型，可以在[here](https://drive.google.com/open?id=0BzKzrI_SkD1_WVVTSmQxU0dVRzA)下载预训练好的模型.注意是用PASCAL VOC数据集训练的。
 
 2. 使用最新模型快照评估模型.   
-  ```Shell
+```Shell
   # 如果你需要对训练的模型进行评估，执行脚本:
   python examples/ssd/score_ssd_pascal.py
   ```
 
 3. 使用webcam摄像头测试模型. 注意: 按 <kbd>esc</kbd> 停止.   
-  ```Shell
+```Shell
   # If you would like to attach a webcam to a model you trained, you can do:
   python examples/ssd/ssd_pascal_webcam.py
   ```
