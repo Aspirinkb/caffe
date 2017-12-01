@@ -45,7 +45,7 @@ Please cite SSD in your publications if it helps your research:
 4. [模型](#models)
 
 ### 安装
-1. 下载代码。假设把Caffe克隆到目录`$CAFFE_ROOT`下
+1. 下载代码。假设把Caffe克隆到目录`$CAFFE_ROOT`下   
   ```终端   
   git clone https://github.com/weiliu89/caffe.git
   cd caffe
@@ -53,7 +53,7 @@ Please cite SSD in your publications if it helps your research:
   ```
 
 2. Build 代码. 按照 [Caffe instruction](http://caffe.berkeleyvision.org/installation.html) 安装
-  必要的packages，然后build。   
+  必要的packages，然后build。      
   ```终端   
   # 根据Caffe安装的方式修改Makefile.config。
   cp Makefile.config.example Makefile.config
@@ -66,9 +66,9 @@ Please cite SSD in your publications if it helps your research:
   ```
 
 ### 预备
-1. 下载 [fully convolutional reduced (atrous) VGGNet](https://gist.github.com/weiliu89/2ed6e13bfd5b57cf81d6). 假设文件被下载到了`$CAFFE_ROOT/models/VGGNet/`目录
+1. 下载 [fully convolutional reduced (atrous) VGGNet](https://gist.github.com/weiliu89/2ed6e13bfd5b57cf81d6). 假设文件被下载到了`$CAFFE_ROOT/models/VGGNet/`目录   
 
-2. 下载VOC2007和VOC2012数据集. 假设下载到了`$HOME/data/`目录
+2. 下载VOC2007和VOC2012数据集. 假设下载到了`$HOME/data/`目录   
   ```Shell
   # 下载数据.
   cd $HOME/data
@@ -81,7 +81,7 @@ Please cite SSD in your publications if it helps your research:
   tar -xvf VOCtest_06-Nov-2007.tar
   ```
 
-3. 创建LMDB文件.
+3. 创建LMDB文件.   
   ```Shell
   cd $CAFFE_ROOT
   # Create the trainval.txt, test.txt, and test_name_size.txt in data/VOC0712/
@@ -94,8 +94,8 @@ Please cite SSD in your publications if it helps your research:
   ./data/VOC0712/create_data.sh
   ```
 
-### 训练/评估
-1. 训练你自己的模型并评估.
+### 训练/评估   
+1. 训练你自己的模型并评估.   
   ```Shell
   # 创建模型定义文件并保存模型训练快照到如下路径:
   #   - $CAFFE_ROOT/models/VGGNet/VOC0712/SSD_300x300/
@@ -108,13 +108,13 @@ Please cite SSD in your publications if it helps your research:
   ```
   如果不乐意自己训练模型，可以在[here](https://drive.google.com/open?id=0BzKzrI_SkD1_WVVTSmQxU0dVRzA)下载预训练好的模型.注意是用PASCAL VOC数据集训练的。
 
-2. 使用最新模型快照评估模型.
+2. 使用最新模型快照评估模型.   
   ```Shell
   # 如果你需要对训练的模型进行评估，执行脚本:
   python examples/ssd/score_ssd_pascal.py
   ```
 
-3. 使用webcam摄像头测试模型. 注意: 按 <kbd>esc</kbd> 停止.
+3. 使用webcam摄像头测试模型. 注意: 按 <kbd>esc</kbd> 停止.   
   ```Shell
   # If you would like to attach a webcam to a model you trained, you can do:
   python examples/ssd/ssd_pascal_webcam.py
