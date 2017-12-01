@@ -7,7 +7,7 @@ By [Wei Liu](http://www.cs.unc.edu/~wliu/), [Dragomir Anguelov](https://www.link
 
 ### 简介
 
-SSD is an unified framework for object detection with a single network. You can use the code to train/evaluate a network for object detection task. For more details, please refer to our [arXiv paper](http://arxiv.org/abs/1512.02325) and our [slide](http://www.cs.unc.edu/~wliu/papers/ssd_eccv2016_slide.pdf).
+SSD是使用单个网络进行物体检测任务的统一框架. 你可以使用本代码训练/评估物体检测任务. 更多细节请见 [arXiv paper](http://arxiv.org/abs/1512.02325) 以及 [slide](http://www.cs.unc.edu/~wliu/papers/ssd_eccv2016_slide.pdf).
 
 <p align="center">
 <img src="http://www.cs.unc.edu/~wliu/papers/ssd.png" alt="SSD Framework" width="600px">
@@ -38,7 +38,7 @@ Please cite SSD in your publications if it helps your research:
       year = {2016}
     }
 
-### Contents
+### 目录
 1. [安装](#installation)
 2. [预备](#preparation)
 3. [训练/评估](#traineval)
