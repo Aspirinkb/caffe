@@ -110,7 +110,8 @@ Please cite SSD in your publications if it helps your research:
   ![VOC 2012的lmdb文件](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/lmdb.JPG)     
 
   同时，在`.../caffe/examples/VOC0712/`路径下保存了上面两个lmdb数据库的链接，截图如下：   
-  ![trainval和test数据路的链接]()
+  ![trainval和test数据路的链接](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/voc0712_lmdb_link.JPG)   
+  
 
 
 ### 训练/评估   
