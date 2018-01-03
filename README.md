@@ -245,59 +245,59 @@ Please cite SSD in your publications if it helps your research:
     ...
     ```
 3. `test_name_size.txt`文件保存了所有测试图像的`id` `height` `width`信息，由`create_list.sh`脚本完成创建。通过分析`create_list.sh`脚本可知道，该脚本共创建了三个txt文件，分别是`trainval.txt` `test.txt`和`dbname_name_size.txt`。   
-  * `trainval.txt`和`test.txt`中，每一行保存了图像文件的路径和图像标注文件的路径，中间以空格分开。片段如下：
-  ```
-  VOC2012/JPEGImages/2010_003429.jpg VOC2012/Annotations/2010_003429.xml
-  VOC2007/JPEGImages/008716.jpg VOC2007/Annotations/008716.xml
-  VOC2012/JPEGImages/2009_004804.jpg VOC2012/Annotations/2009_004804.xml
-  VOC2007/JPEGImages/005293.jpg VOC2007/Annotations/005293.xml
-  ```    
-  注意，trainval中的顺序是打乱的，test中的顺序不必打乱。
-  * `test_name_size.txt`文件是由`.../caffe/get_image_size`程序生成的，其源码位于`.../caffe/tools/get_image_size.cpp`中。这段程序的作用是根据`test.txt`中提供的测试图像的路径信息和数据集根目录信息（两段路径拼合得到图像的绝对路径），自动计算每张图像的`height`和`width`。`get_image_size.cpp`中的核心代码段为：   
-  ```
-  // Storing to outfile
-  boost::filesystem::path root_folder(argv[1]);
-  std::ofstream outfile(argv[3]);
-  if (!outfile.good()) {
-    LOG(FATAL) << "Failed to open file: " << argv[3];
-  }
-  int height, width;
-  int count = 0;
-  for (int line_id = 0; line_id < lines.size(); ++line_id) {
-    boost::filesystem::path img_file = root_folder / lines[line_id].first;
-    GetImageSize(img_file.string(), &height, &width);
-    std::string img_name = img_file.stem().string();
-    if (map_name_id.size() == 0) {
-      outfile << img_name << " " << height << " " << width << std::endl;
-    } else {
-      CHECK(map_name_id.find(img_name) != map_name_id.end());
-      int img_id = map_name_id.find(img_name)->second;
-      outfile << img_id << " " << height << " " << width << std::endl;
+    * `trainval.txt`和`test.txt`中，每一行保存了图像文件的路径和图像标注文件的路径，中间以空格分开。片段如下：
+    ```
+    VOC2012/JPEGImages/2010_003429.jpg VOC2012/Annotations/2010_003429.xml
+    VOC2007/JPEGImages/008716.jpg VOC2007/Annotations/008716.xml
+    VOC2012/JPEGImages/2009_004804.jpg VOC2012/Annotations/2009_004804.xml
+    VOC2007/JPEGImages/005293.jpg VOC2007/Annotations/005293.xml
+    ```    
+    注意，trainval中的顺序是打乱的，test中的顺序不必打乱。
+    * `test_name_size.txt`文件是由`.../caffe/get_image_size`程序生成的，其源码位于`.../caffe/tools/get_image_size.cpp`中。这段程序的作用是根据`test.txt`中提供的测试图像的路径信息和数据集根目录信息（两段路径拼合得到图像的绝对路径），自动计算每张图像的`height`和`width`。`get_image_size.cpp`中的核心代码段为：   
+    ```
+    // Storing to outfile
+    boost::filesystem::path root_folder(argv[1]);
+    std::ofstream outfile(argv[3]);
+    if (!outfile.good()) {
+      LOG(FATAL) << "Failed to open file: " << argv[3];
     }
+    int height, width;
+    int count = 0;
+    for (int line_id = 0; line_id < lines.size(); ++line_id) {
+      boost::filesystem::path img_file = root_folder / lines[line_id].first;
+      GetImageSize(img_file.string(), &height, &width);
+      std::string img_name = img_file.stem().string();
+      if (map_name_id.size() == 0) {
+        outfile << img_name << " " << height << " " << width << std::endl;
+      } else {
+        CHECK(map_name_id.find(img_name) != map_name_id.end());
+        int img_id = map_name_id.find(img_name)->second;
+        outfile << img_id << " " << height << " " << width << std::endl;
+      }
 
-    if (++count % 1000 == 0) {
+      if (++count % 1000 == 0) {
+        LOG(INFO) << "Processed " << count << " files.";
+      }
+    }
+    // write the last batch
+    if (count % 1000 != 0) {
       LOG(INFO) << "Processed " << count << " files.";
     }
-  }
-  // write the last batch
-  if (count % 1000 != 0) {
-    LOG(INFO) << "Processed " << count << " files.";
-  }
-  outfile.flush();
-  outfile.close();
-  ```  
-    保存到`test_name_size.txt`中的内容片段如下：   
-    ```
-    000001 500 353
-    000002 500 335
-    000003 375 500
-    000004 406 500
-    000006 375 500
-    000008 375 500
-    000010 480 354
-    ```
+    outfile.flush();
+    outfile.close();
+    ```  
+      保存到`test_name_size.txt`中的内容片段如下：   
+      ```
+      000001 500 353
+      000002 500 335
+      000003 375 500
+      000004 406 500
+      000006 375 500
+      000008 375 500
+      000010 480 354
+      ```
 
-  现在，`trainval.txt` `test.txt`和`test_name_size.txt`的内容已经很清晰了，可以利用现成的代码程序，适当修改图像数据集名称和路径就可以创建这三个文件。当然，也可以根据自己的编程喜好，重新编写脚本生成符合上面格式的txt文件即可。   
+    现在，`trainval.txt` `test.txt`和`test_name_size.txt`的内容已经很清晰了，可以利用现成的代码程序，适当修改图像数据集名称和路径就可以创建这三个文件。当然，也可以根据自己的编程喜好，重新编写脚本生成符合上面格式的txt文件即可。   
 4. `dbname_trainval_lmdb`   
   生成该数据库文件的程序为`create_data.sh`，其核心代码是执行python脚本`.../caffe/scripts/create_annoset.py`，该脚本需要之前准备的 `labelmap_dbname.prototxt` 和 `trainval.txt` 作为输入，以及几个可配置项。   
   `.../caffe/scripts/create_annoset.py`脚本的核心代码是执行`.../caffe/build/tools/convert_annoset`程序。`labelmap_dbname.prototxt` 和 `trainval.txt`就是为`convert_annoset`程序准备的，其源码在`.../caffe/tools/convert_annoset.cpp`中。创建并写入数据库的核心代码片段如下：    
