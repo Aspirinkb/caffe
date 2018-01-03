@@ -104,10 +104,13 @@ Please cite SSD in your publications if it helps your research:
   ![trainval.txt](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/trainval.txt.JPG)      
   生成的test_name_size.txt是测试图像的`id` `height` 和 `width`   
   ![test_name_size.txt](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/test_name_size.JPG)   
-  生成trainval和test两个lmdb数据库，分别用来训练和测试SSD模型。   
+  最终，生成trainval和test两个lmdb数据库，分别用来训练和测试SSD模型。   
   ![VOC0712 trainval and test lmdb database](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/voc0712trainval_test_lmdb.JPG)   
   trainval LMDB   
-  ![VOC 2012的lmdb文件](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/lmdb.JPG)   
+  ![VOC 2012的lmdb文件](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/lmdb.JPG)     
+
+  同时，在`.../caffe/examples/VOC0712/`路径下保存了上面两个lmdb数据库的链接，截图如下：   
+  ![trainval和test数据路的链接]()
 
 
 ### 训练/评估   
