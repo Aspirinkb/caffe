@@ -43,6 +43,7 @@ Please cite SSD in your publications if it helps your research:
 2. [预备](#preparation)
 3. [训练/评估](#traineval)
 4. [模型](#models)
+5. [全新的数据集](#newdata)
 
 ### 安装
 1. 下载代码。假设把Caffe克隆到目录`$CAFFE_ROOT`下   
@@ -116,7 +117,8 @@ Please cite SSD in your publications if it helps your research:
 
 ### 训练/评估   
 1. 训练你自己的模型并评估.   
-```Shell
+
+  ```Shell
   # 创建模型定义文件并保存模型训练快照到如下路径:
   #   - $CAFFE_ROOT/models/VGGNet/VOC0712/SSD_300x300/
   # and job file, log file, and the python script in:
@@ -141,11 +143,37 @@ Please cite SSD in your publications if it helps your research:
 
   其中，`train_data`和`test_data`是之前创建的LMDB数据库文件，用于训练和测试模型。`name_size_file`是之前创建的测试图像集的图像id和size文件，用于模型的测试。`pretrain_model`是base network部分(VGG_16的卷积层)的预训练参数。`label_map_file`保存的是物体的name和label的映射文件，用于训练和测试。这五个文件是之前都准备好的.   
 
-  后面的四个文件，`train_net_file` `test_net_file` `deploy_net_file`和`solver_file`是在`ssd_pascal.py`脚本中根据模型定义和训练策略参数自动生成的。例如，`train_net_file`，也就是`train.prototxt`，生成语句是`shutil.copy(train_net_file, job_dir)`，具体的代码片段如图   
-  ![生成train.prototxt](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/create_save_SSD_train_net_file.JPG)   
-  
+  后面的四个文件，`train_net_file` `test_net_file` `deploy_net_file`和`solver_file`是在`ssd_pascal.py`脚本中根据模型定义和训练策略参数自动生成的。例如，`train_net_file`，也就是`train.prototxt`，生成语句是`shutil.copy(train_net_file, job_dir)`，具体的代码片段如下：
+  ```
+  # Create train net.
+  net = caffe.NetSpec()
+  net.data, net.label = CreateAnnotatedDataLayer(train_data, batch_size=batch_size_per_device,
+          train=True, output_label=True, label_map_file=label_map_file,
+          transform_param=train_transform_param, batch_sampler=batch_sampler)
 
+  VGGNetBody(net, from_layer='data', fully_conv=True, reduced=True, dilated=True,
+      dropout=False)
 
+  AddExtraLayers(net, use_batchnorm, lr_mult=lr_mult)
+
+  mbox_layers = CreateMultiBoxHead(net, data_layer='data', from_layers=mbox_source_layers,
+          use_batchnorm=use_batchnorm, min_sizes=min_sizes, max_sizes=max_sizes,
+          aspect_ratios=aspect_ratios, steps=steps, normalizations=normalizations,
+          num_classes=num_classes, share_location=share_location, flip=flip, clip=clip,
+          prior_variance=prior_variance, kernel_size=3, pad=1, lr_mult=lr_mult)
+
+  # Create the MultiBoxLossLayer.
+  name = "mbox_loss"
+  mbox_layers.append(net.label)
+  net[name] = L.MultiBoxLoss(*mbox_layers, multibox_loss_param=multibox_loss_param,
+          loss_param=loss_param, include=dict(phase=caffe_pb2.Phase.Value('TRAIN')),
+          propagate_down=[True, True, False, False])
+
+  with open(train_net_file, 'w') as f:
+      print('name: "{}_train"'.format(model_name), file=f)
+      print(net.to_proto(), file=f)
+  shutil.copy(train_net_file, job_dir)
+  ```
 
 2. 使用最新模型快照评估模型.   
 ```Shell
@@ -179,5 +207,176 @@ Please cite SSD in your publications if it helps your research:
 
 3. ILSVRC 模型:
    * trainval1: [SSD300*](https://drive.google.com/open?id=0BzKzrI_SkD1_a2NKQ2d1d043VXM), [SSD500](https://drive.google.com/open?id=0BzKzrI_SkD1_X2ZCLVgwLTgzaTQ)
+
+### 全新的数据集   
+
+在之前的**训练/评估**的第一部分，我们介绍了如何准备数据集：   
+  * `dbname_trainval_lmdb`    
+  * `dbname_test_lmdb`   
+  * `test_name_size.txt`   
+  * `labelmap_dbname.prototxt`   
+  * `VGG_ILSVRC_16_layers_fc_reduced.caffemodel`   
+
+全新的数据意味着不同的训练/测试图像，不同的object name label映射关系，不同的网络模型定义参数。首先，我们需要根据新的图像数据集生成模型的输入部分，也就是上面的五个文件。   
+
+1. `VGG_ILSVRC_16_layers_fc_reduced.caffemodel`是预训练好的VGG_16的卷积层的参数，直接下载使用即可，这里不再介绍如何重新训练VGG_16分类模型。   
+2. `labelmap_dbname.prototxt`是标注文件中object的name和label的映射文件，一般类别不会太多，直接编写此文件即可。例如，一个可能的映射文件：   
+    ```
+    item {
+      name: "none_of_the_above"
+      label: 0
+      display_name: "background"
+    }
+    item {
+      name: "Car"
+      label: 1
+      display_name: "car"
+    }
+    item {
+      name: "Bus"
+      label: 2
+      display_name: "bus"
+    }
+    item {
+      name: "Van"
+      label: 3
+      display_name: "van"
+    }
+    ...
+    ```
+3. `test_name_size.txt`文件保存了所有测试图像的`id` `height` `width`信息，由`create_list.sh`脚本完成创建。通过分析`create_list.sh`脚本可知道，该脚本共创建了三个txt文件，分别是`trainval.txt` `test.txt`和`dbname_name_size.txt`。   
+  * `trainval.txt`和`test.txt`中，每一行保存了图像文件的路径和图像标注文件的路径，中间以空格分开。片段如下：
+  ```
+  VOC2012/JPEGImages/2010_003429.jpg VOC2012/Annotations/2010_003429.xml
+  VOC2007/JPEGImages/008716.jpg VOC2007/Annotations/008716.xml
+  VOC2012/JPEGImages/2009_004804.jpg VOC2012/Annotations/2009_004804.xml
+  VOC2007/JPEGImages/005293.jpg VOC2007/Annotations/005293.xml
+  ```    
+  注意，trainval中的顺序是打乱的，test中的顺序不必打乱。
+  * `test_name_size.txt`文件是由`.../caffe/get_image_size`程序生成的，其源码位于`.../caffe/tools/get_image_size.cpp`中。这段程序的作用是根据`test.txt`中提供的测试图像的路径信息和数据集根目录信息（两段路径拼合得到图像的绝对路径），自动计算每张图像的`height`和`width`。`get_image_size.cpp`中的核心代码段为：   
+  ```
+  // Storing to outfile
+  boost::filesystem::path root_folder(argv[1]);
+  std::ofstream outfile(argv[3]);
+  if (!outfile.good()) {
+    LOG(FATAL) << "Failed to open file: " << argv[3];
+  }
+  int height, width;
+  int count = 0;
+  for (int line_id = 0; line_id < lines.size(); ++line_id) {
+    boost::filesystem::path img_file = root_folder / lines[line_id].first;
+    GetImageSize(img_file.string(), &height, &width);
+    std::string img_name = img_file.stem().string();
+    if (map_name_id.size() == 0) {
+      outfile << img_name << " " << height << " " << width << std::endl;
+    } else {
+      CHECK(map_name_id.find(img_name) != map_name_id.end());
+      int img_id = map_name_id.find(img_name)->second;
+      outfile << img_id << " " << height << " " << width << std::endl;
+    }
+
+    if (++count % 1000 == 0) {
+      LOG(INFO) << "Processed " << count << " files.";
+    }
+  }
+  // write the last batch
+  if (count % 1000 != 0) {
+    LOG(INFO) << "Processed " << count << " files.";
+  }
+  outfile.flush();
+  outfile.close();
+  ```  
+    保存到`test_name_size.txt`中的内容片段如下：   
+    ```
+    000001 500 353
+    000002 500 335
+    000003 375 500
+    000004 406 500
+    000006 375 500
+    000008 375 500
+    000010 480 354
+    ```
+
+  现在，`trainval.txt` `test.txt`和`test_name_size.txt`的内容已经很清晰了，可以利用现成的代码程序，适当修改图像数据集名称和路径就可以创建这三个文件。当然，也可以根据自己的编程喜好，重新编写脚本生成符合上面格式的txt文件即可。   
+4. `dbname_trainval_lmdb`   
+  生成该数据库文件的程序为`create_data.sh`，其核心代码是执行python脚本`.../caffe/scripts/create_annoset.py`，该脚本需要之前准备的 `labelmap_dbname.prototxt` 和 `trainval.txt` 作为输入，以及几个可配置项。   
+  `.../caffe/scripts/create_annoset.py`脚本的核心代码是执行`.../caffe/build/tools/convert_annoset`程序。`labelmap_dbname.prototxt` 和 `trainval.txt`就是为`convert_annoset`程序准备的，其源码在`.../caffe/tools/convert_annoset.cpp`中。创建并写入数据库的核心代码片段如下：    
+  ```
+  // 创建一个新的数据库
+  scoped_ptr<db::DB> db(db::GetDB(FLAGS_backend));
+  db->Open(argv[3], db::NEW);
+  scoped_ptr<db::Transaction> txn(db->NewTransaction());
+
+  // 把数据存储到数据库
+  std::string root_folder(argv[1]);
+  AnnotatedDatum anno_datum;
+  Datum* datum = anno_datum.mutable_datum();
+  int count = 0;
+  int data_size = 0;
+  bool data_size_initialized = false;
+
+  for (int line_id = 0; line_id < lines.size(); ++line_id) {
+    bool status = true;
+    std::string enc = encode_type;
+    if (encoded && !enc.size()) {
+      // Guess the encoding type from the file name
+      string fn = lines[line_id].first;
+      size_t p = fn.rfind('.');
+      if ( p == fn.npos )
+        LOG(WARNING) << "Failed to guess the encoding of '" << fn << "'";
+      enc = fn.substr(p);
+      std::transform(enc.begin(), enc.end(), enc.begin(), ::tolower);
+    }
+    filename = root_folder + lines[line_id].first;
+    if (anno_type == "classification") {
+      label = boost::get<int>(lines[line_id].second);
+      status = ReadImageToDatum(filename, label, resize_height, resize_width,
+          min_dim, max_dim, is_color, enc, datum);
+    } else if (anno_type == "detection") {
+      labelname = root_folder + boost::get<std::string>(lines[line_id].second);
+      status = ReadRichImageToAnnotatedDatum(filename, labelname, resize_height,
+          resize_width, min_dim, max_dim, is_color, enc, type, label_type,
+          name_to_label, &anno_datum);
+      anno_datum.set_type(AnnotatedDatum_AnnotationType_BBOX);
+    }
+    if (status == false) {
+      LOG(WARNING) << "Failed to read " << lines[line_id].first;
+      continue;
+    }
+    if (check_size) {
+      if (!data_size_initialized) {
+        data_size = datum->channels() * datum->height() * datum->width();
+        data_size_initialized = true;
+      } else {
+        const std::string& data = datum->data();
+        CHECK_EQ(data.size(), data_size) << "Incorrect data field size "
+            << data.size();
+      }
+    }
+    // 序列化
+    string key_str = caffe::format_int(line_id, 8) + "_" + lines[line_id].first;
+
+    // 把数据Put到数据库
+    string out;
+    CHECK(anno_datum.SerializeToString(&out));
+    txn->Put(key_str, out);
+
+    if (++count % 1000 == 0) {
+      // Commit db
+      txn->Commit();
+      txn.reset(db->NewTransaction());
+      LOG(INFO) << "Processed " << count << " files.";
+    }// end if
+  }//end for
+  // 写入最后一个batch的数据
+  if (count % 1000 != 0) {
+    txn->Commit();
+    LOG(INFO) << "Processed " << count << " files.";
+  }
+  ```
+5. `dbname_test_lmdb`   
+同`4.dbname_trainval_lmdb`   
+6. 使用`examples/ssd.ipynb`核实上面生成的文件的正确性
+
 
 <sup>[1]</sup>We use [`examples/convert_model.ipynb`](https://github.com/weiliu89/caffe/blob/ssd/examples/convert_model.ipynb) to extract a VOC model from a pretrained COCO model.
