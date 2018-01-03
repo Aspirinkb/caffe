@@ -141,7 +141,9 @@ Please cite SSD in your publications if it helps your research:
 
   其中，`train_data`和`test_data`是之前创建的LMDB数据库文件，用于训练和测试模型。`name_size_file`是之前创建的测试图像集的图像id和size文件，用于模型的测试。`pretrain_model`是base network部分(VGG_16的卷积层)的预训练参数。`label_map_file`保存的是物体的name和label的映射文件，用于训练和测试。这五个文件是之前都准备好的.   
 
-  后面的四个文件，`train_net_file` `test_net_file` `deploy_net_file`和`solver_file`是在`ssd_pascal.py`脚本中根据模型定义和训练策略参数自动生成的。例如，`train_net_file`，也就是`train.prototxt`，生成语句是`shutil.copy(train_net_file, job_dir)`。
+  后面的四个文件，`train_net_file` `test_net_file` `deploy_net_file`和`solver_file`是在`ssd_pascal.py`脚本中根据模型定义和训练策略参数自动生成的。例如，`train_net_file`，也就是`train.prototxt`，生成语句是`shutil.copy(train_net_file, job_dir)`，具体的代码片段如图   
+  ![生成train.prototxt](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/create_save_SSD_train_net_file.JPG)   
+  
 
 
 
