@@ -79,7 +79,12 @@ Please cite SSD in your publications if it helps your research:
   tar -xvf VOCtrainval_11-May-2012.tar
   tar -xvf VOCtrainval_06-Nov-2007.tar
   tar -xvf VOCtest_06-Nov-2007.tar
-  ```
+  ```   
+  VOC 2007年的数据分为VOCtrainval和VOCtest两个tar包，VOC 2012年的数据只有VOCtrainval一个tar包，如下   
+  ![VOC0712的三个tar包]()   
+  解压后，2007和2012两年的数据在`VOCdevkit`目录的`VOC2007`和`VOC2012`两个子目录中。每个子目录下，分别包含了五个文件夹，分别是`Annotations` `ImageSets` `JPEGImages` `SegmentationClass` 以及 `SegmentationObject`。对于SSD的Object任务，需要使用`Annotations`中的xml标注文件，`ImagesSets/Main/`目录中的`trainval.txt`和`test.txt`，以及`JPEGImages`目录下的图像。   
+  ![VOC2007]()
+  ![VOC2012]()
 
 3. 创建LMDB文件.   
 ```Shell
