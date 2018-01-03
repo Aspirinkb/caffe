@@ -101,9 +101,9 @@ Please cite SSD in your publications if it helps your research:
   ./data/VOC0712/create_data.sh
   ```    
   生成的trainval.txt格式如图   
-  ![trainval.txt](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/trainval.txt.JPG)  
+  ![trainval.txt](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/trainval.txt.JPG)    
+  ![test_name_size.txt](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/test_name_size.JPG)   
   生成trainval和test两个lmdb数据库，分别用来训练和测试SSD模型。   
-
   ![VOC0712 trainval and test lmdb database](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/voc0712trainval_test_lmdb.JPG)   
   ![VOC 2012的lmdb文件](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/lmdb.JPG)   
 
