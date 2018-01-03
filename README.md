@@ -84,8 +84,9 @@ Please cite SSD in your publications if it helps your research:
   ![VOC0712的三个tar包](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/VOC0712.JPG)   
   解压后，2007和2012两年的数据在`VOCdevkit`目录的`VOC2007`和`VOC2012`两个子目录中。每个子目录下，分别包含了五个文件夹，分别是`Annotations` `ImageSets` `JPEGImages` `SegmentationClass` 以及 `SegmentationObject`。对于SSD的Object任务，需要使用`Annotations`中的xml标注文件，`ImagesSets/Main/`目录中的`trainval.txt`和`test.txt`，以及`JPEGImages`目录下的图像。   
   ![VOC2007](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/VOC2007%E8%A7%A3%E5%8E%8B%E5%90%8E.JPG)   
-  
-  ![VOC2012](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/VOC2012%E8%A7%A3%E5%8E%8B%E5%90%8E%E7%9B%AE%E5%BD%95.JPG)
+
+  ![VOC2012](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/VOC2012%E8%A7%A3%E5%8E%8B%E5%90%8E%E7%9B%AE%E5%BD%95.JPG)   
+
 
 3. 创建LMDB文件.   
 ```Shell
@@ -98,7 +99,14 @@ Please cite SSD in your publications if it helps your research:
   #   - $HOME/data/VOCdevkit/VOC0712/lmdb/VOC0712_test_lmdb
   # and make soft links at examples/VOC0712/
   ./data/VOC0712/create_data.sh
-  ```
+  ```    
+  生成的trainval.txt格式如图   
+  ![trainval.txt](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/trainval.txt.JPG)  
+  生成trainval和test两个lmdb数据库，分别用来训练和测试SSD模型。   
+
+  ![VOC0712 trainval and test lmdb database](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/voc0712trainval_test_lmdb.JPG)   
+  ![VOC 2012的lmdb文件](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/lmdb.JPG)   
+
 
 ### 训练/评估   
 1. 训练你自己的模型并评估.   
