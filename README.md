@@ -111,7 +111,7 @@ Please cite SSD in your publications if it helps your research:
 
   同时，在`.../caffe/examples/VOC0712/`路径下保存了上面两个lmdb数据库的链接，截图如下：   
   ![trainval和test数据路的链接](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/voc0712_lmdb_link.JPG)   
-  
+
 
 
 ### 训练/评估   
@@ -126,7 +126,24 @@ Please cite SSD in your publications if it helps your research:
   # 120K次迭代之后，应该可以达到77.*的mAP.
   python examples/ssd/ssd_pascal.py
   ```
-  如果不乐意自己训练模型，可以在[here](https://drive.google.com/open?id=0BzKzrI_SkD1_WVVTSmQxU0dVRzA)下载预训练好的模型.注意是用PASCAL VOC数据集训练的。
+  如果不乐意自己训练模型，可以在[here](https://drive.google.com/open?id=0BzKzrI_SkD1_WVVTSmQxU0dVRzA)下载预训练好的模型.注意是用PASCAL VOC数据集训练的。   
+
+  通过分析ssd_pascal.py的源码，可以知道训练ssd模型需要几个文件输入，分别是   
+  `train_data = "examples/VOC0712/VOC0712_trainval_lmdb"`   
+  `test_data = "examples/VOC0712/VOC0712_test_lmdb"`   
+  `name_size_file = "data/VOC0712/test_name_size.txt"`   
+  `pretrain_model = "models/VGGNet/VGG_ILSVRC_16_layers_fc_reduced.caffemodel"`   
+  `label_map_file = "data/VOC0712/labelmap_voc.prototxt"`   
+  `train_net_file = "models/VGGNet/VOC0712/SSD_300x300/train.prototxt"`   
+  `test_net_file = "models/VGGNet/VOC0712/SSD_300x300/test.prototxt"`   
+  `deploy_net_file = "models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt"`   
+  `solver_file = "models/VGGNet/VOC0712/SSD_300x300/solver.prototxt"`  
+
+  其中，`train_data`和`test_data`是之前创建的LMDB数据库文件，用于训练和测试模型。`name_size_file`是之前创建的测试图像集的图像id和size文件，用于模型的测试。`pretrain_model`是base network部分(VGG_16的卷积层)的预训练参数。`label_map_file`保存的是物体的name和label的映射文件，用于训练和测试。这五个文件是之前都准备好的.   
+
+  后面的四个文件，`train_net_file` `test_net_file` `deploy_net_file`和`solver_file`是在`ssd_pascal.py`脚本中根据模型定义和训练策略参数自动生成的。例如，`train_net_file`，也就是`train.prototxt`，生成语句是`shutil.copy(train_net_file, job_dir)`。
+
+
 
 2. 使用最新模型快照评估模型.   
 ```Shell
