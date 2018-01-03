@@ -100,11 +100,13 @@ Please cite SSD in your publications if it helps your research:
   # and make soft links at examples/VOC0712/
   ./data/VOC0712/create_data.sh
   ```    
-  生成的trainval.txt格式如图   
-  ![trainval.txt](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/trainval.txt.JPG)    
+  生成的trainval.txt格式如图，文件内容是图像的路径和标注文件的路径，中间用空格分隔开:   
+  ![trainval.txt](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/trainval.txt.JPG)      
+  生成的test_name_size.txt是测试图像的`id` `height` 和 `width`   
   ![test_name_size.txt](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/test_name_size.JPG)   
   生成trainval和test两个lmdb数据库，分别用来训练和测试SSD模型。   
   ![VOC0712 trainval and test lmdb database](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/voc0712trainval_test_lmdb.JPG)   
+  trainval LMDB   
   ![VOC 2012的lmdb文件](https://github.com/Aspirinkb/caffe/blob/ssd/docs/images/lmdb.JPG)   
 
 
