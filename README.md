@@ -373,6 +373,87 @@ Please cite SSD in your publications if it helps your research:
     txn->Commit();
     LOG(INFO) << "Processed " << count << " files.";
   }
+  ```   
+  这段代码中最重要的一行是对`ReadRichImageToAnnotatedDatum()`方法的调用，将图像文件和标注信息一起写入到了`anno_datum`变量中，再序列化，提交到数据库缓存区，缓存到一定数量的记录后一次性写入数据库。
+
+  `ReadRichImageToAnnotatedDatum()`方法由Caffe提供，是caffe/src/util/io.cpp中定义的一个方法，该方法及其其调用的`ReadImageToDatum`方法和`GetImageSize`方法源码如下：   
+  ```
+  bool ReadImageToDatum(const string& filename, const int label,
+      const int height, const int width, const int min_dim, const int max_dim,
+      const bool is_color, const std::string & encoding, Datum* datum) {
+    cv::Mat cv_img = ReadImageToCVMat(filename, height, width, min_dim, max_dim,
+                                      is_color);
+    if (cv_img.data) {
+      if (encoding.size()) {
+        if ( (cv_img.channels() == 3) == is_color && !height && !width &&
+            !min_dim && !max_dim && matchExt(filename, encoding) ) {
+          datum->set_channels(cv_img.channels());
+          datum->set_height(cv_img.rows);
+          datum->set_width(cv_img.cols);
+          return ReadFileToDatum(filename, label, datum);
+        }
+        EncodeCVMatToDatum(cv_img, encoding, datum);
+        datum->set_label(label);
+        return true;
+      }
+      CVMatToDatum(cv_img, datum);
+      datum->set_label(label);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void GetImageSize(const string& filename, int* height, int* width) {
+    cv::Mat cv_img = cv::imread(filename);
+    if (!cv_img.data) {
+      LOG(ERROR) << "Could not open or find file " << filename;
+      return;
+    }
+    *height = cv_img.rows;
+    *width = cv_img.cols;
+  }
+
+  bool ReadRichImageToAnnotatedDatum(const string& filename,
+      const string& labelfile, const int height, const int width,
+      const int min_dim, const int max_dim, const bool is_color,
+      const string& encoding, const AnnotatedDatum_AnnotationType type,
+      const string& labeltype, const std::map<string, int>& name_to_label,
+      AnnotatedDatum* anno_datum) {
+    // Read image to datum.
+    bool status = ReadImageToDatum(filename, -1, height, width,
+                                   min_dim, max_dim, is_color, encoding,
+                                   anno_datum->mutable_datum());
+    if (status == false) {
+      return status;
+    }
+    anno_datum->clear_annotation_group();
+    if (!boost::filesystem::exists(labelfile)) {
+      return true;
+    }
+    switch (type) {
+      case AnnotatedDatum_AnnotationType_BBOX:
+        int ori_height, ori_width;
+        GetImageSize(filename, &ori_height, &ori_width);
+        if (labeltype == "xml") {
+          return ReadXMLToAnnotatedDatum(labelfile, ori_height, ori_width,
+                                         name_to_label, anno_datum);
+        } else if (labeltype == "json") {
+          return ReadJSONToAnnotatedDatum(labelfile, ori_height, ori_width,
+                                          name_to_label, anno_datum);
+        } else if (labeltype == "txt") {
+          return ReadTxtToAnnotatedDatum(labelfile, ori_height, ori_width,
+                                         anno_datum);
+        } else {
+          LOG(FATAL) << "Unknown label file type.";
+          return false;
+        }
+        break;
+      default:
+        LOG(FATAL) << "Unknown annotation type.";
+        return false;
+    }
+  }
   ```
 5. `dbname_test_lmdb`   
 同`4.dbname_trainval_lmdb`   
