@@ -39,11 +39,11 @@ Please cite SSD in your publications if it helps your research:
     }
 
 ### 目录
-1. [安装](#installation)
-2. [预备](#preparation)
-3. [训练/评估](#traineval)
-4. [模型](#models)
-5. [全新的数据集](#newdata)
+1. [安装](#安装)
+2. [预备](#预备)
+3. [训练/评估](#训练/评估)
+4. [模型](#模型)
+5. [全新的数据集](#全新的数据集)
 
 ### 安装
 1. 下载代码。假设把Caffe克隆到目录`$CAFFE_ROOT`下   
