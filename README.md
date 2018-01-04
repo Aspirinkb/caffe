@@ -455,7 +455,7 @@ Please cite SSD in your publications if it helps your research:
     }
   }
   ```   
-  可以看到在上面的方法中继续调用了`io.cpp`中的两个方法`ReadFileToDatum`和`ReadXMLToAnnotatedDatum`，分别把图像和图像的标注XML写入到了`anno_datum`中。其中，图像保存到了`anno_datum`的`mutable_datum`中，XML标注信息被保存到了`anno_datum`的`anno_group`->`anno`->`bbox`中，`anno_group`还保存了`label`等信息。
+  可以看到在上面的方法中继续调用了`io.cpp`中的两个方法`ReadFileToDatum`和`ReadXMLToAnnotatedDatum`，分别把图像和图像的标注XML写入到了`anno_datum`中。其中，图像保存到了`anno_datum`的`mutable_datum`中，XML标注信息被保存到了`anno_datum`的`anno_group`->`anno`->`bbox`中，`anno_group`还保存了`label`等信息。   
 5. `dbname_test_lmdb`   
 同`4.dbname_trainval_lmdb`   
 6. 使用`examples/ssd.ipynb`核实上面生成的文件的正确性
