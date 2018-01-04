@@ -21,5 +21,15 @@ then
 fi
 for subset in test trainval
 do
-  python $root_dir/scripts/create_annoset.py --anno-type=$anno_type --label-map-file=$mapfile --min-dim=$min_dim --max-dim=$max_dim --resize-width=$width --resize-height=$height --check-label $extra_cmd $data_root_dir $root_dir/data/$dataset_name/$subset.txt $data_root_dir/$dataset_name/$db/$dataset_name"_"$subset"_"$db examples/$dataset_name
+  python3 $root_dir/scripts/create_annoset.py --anno-type=$anno_type --label-map-file=$mapfile --min-dim=$min_dim --max-dim=$max_dim --resize-width=$width --resize-height=$height --check-label $extra_cmd $data_root_dir $root_dir/data/$dataset_name/$subset.txt $data_root_dir/$dataset_name/$db/$dataset_name"_"$subset"_"$db examples/$dataset_name
+  # python /home/ai/ssd/caffe/scripts/create_annoset.py
+  # --anno_type=detection
+  # --label-map-file=/home/ai/ssd/caffe/data/VOC0712/labelmap_voc.prototxt
+  # --min-dim --max-dim --resize-width --resize-height
+  # --check-label
+  # --encode-type=jpg
+  # --encoded
+  # --redo
+  # home/data/VOCdevkit/ home/ai/ssd/caffe/data/VOC0712/trainval.txt home/data/VOCdevkit/VOC0712/lmdb/VOC0712_trainval_lmdb examples/VOC0712
+  # home/data/VOCdevkit/ home/ai/ssd/caffe/data/VOC0712/test.txt home/data/VOCdevkit/VOC0712/lmdb/VOC0712_test_lmdb examples/VOC0712
 done
