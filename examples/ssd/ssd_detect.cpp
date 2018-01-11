@@ -17,6 +17,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgcodecs/imgcodecs.hpp>
 #endif  // USE_OPENCV
 #include <algorithm>
 #include <iomanip>
@@ -25,6 +26,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <iostream>
+#include <stdio.h>
 
 #ifdef USE_OPENCV
 using namespace caffe;  // NOLINT(build/namespaces)
@@ -51,17 +54,18 @@ class Detector {
   cv::Size input_geometry_;
   int num_channels_;
   cv::Mat mean_;
-};
+};//Detector
 
 Detector::Detector(const string& model_file,
                    const string& weights_file,
                    const string& mean_file,
                    const string& mean_value) {
-#ifdef CPU_ONLY
-  Caffe::set_mode(Caffe::CPU);
-#else
-  Caffe::set_mode(Caffe::GPU);
-#endif
+
+    #ifdef CPU_ONLY
+      Caffe::set_mode(Caffe::CPU);
+    #else
+      Caffe::set_mode(Caffe::GPU);
+    #endif
 
   /* Load the network. */
   net_.reset(new Net<float>(model_file, TEST));
@@ -238,121 +242,146 @@ DEFINE_string(file_type, "image",
     "The file type in the list_file. Currently support image and video.");
 DEFINE_string(out_file, "",
     "If provided, store the detection results in the out_file.");
-DEFINE_double(confidence_threshold, 0.01,
+DEFINE_double(confidence_threshold, 0.5,
     "Only store detections with score higher than the threshold.");
 
 int main(int argc, char** argv) {
-  ::google::InitGoogleLogging(argv[0]);
-  // Print output to stderr (while still logging)
-  FLAGS_alsologtostderr = 1;
+    ::google::InitGoogleLogging(argv[0]);
+    // Print output to stderr (while still logging)
+    FLAGS_alsologtostderr = 1;
 
-#ifndef GFLAGS_GFLAGS_H_
-  namespace gflags = google;
-#endif
+    #ifndef GFLAGS_GFLAGS_H_
+      namespace gflags = google;
+    #endif
 
-  gflags::SetUsageMessage("Do detection using SSD mode.\n"
+    gflags::SetUsageMessage("Do detection using SSD mode.\n"
         "Usage:\n"
         "    ssd_detect [FLAGS] model_file weights_file list_file\n");
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
+    gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-  if (argc < 4) {
-    gflags::ShowUsageWithFlagsRestrict(argv[0], "examples/ssd/ssd_detect");
-    return 1;
-  }
-
-  const string& model_file = argv[1];
-  const string& weights_file = argv[2];
-  const string& mean_file = FLAGS_mean_file;
-  const string& mean_value = FLAGS_mean_value;
-  const string& file_type = FLAGS_file_type;
-  const string& out_file = FLAGS_out_file;
-  const float confidence_threshold = FLAGS_confidence_threshold;
-
-  // Initialize the network.
-  Detector detector(model_file, weights_file, mean_file, mean_value);
-
-  // Set the output mode.
-  std::streambuf* buf = std::cout.rdbuf();
-  std::ofstream outfile;
-  if (!out_file.empty()) {
-    outfile.open(out_file.c_str());
-    if (outfile.good()) {
-      buf = outfile.rdbuf();
+    if (argc < 4) {
+        gflags::ShowUsageWithFlagsRestrict(argv[0], "examples/ssd/ssd_detect");
+        return 1;
     }
-  }
-  std::ostream out(buf);
 
-  // Process image one by one.
-  std::ifstream infile(argv[3]);
-  std::string file;
-  while (infile >> file) {
-    if (file_type == "image") {
-      cv::Mat img = cv::imread(file, -1);
-      CHECK(!img.empty()) << "Unable to decode image " << file;
-      std::vector<vector<float> > detections = detector.Detect(img);
+    const string& model_file = argv[1];
+    const string& weights_file = argv[2];
+    const string& mean_file = FLAGS_mean_file;
+    const string& mean_value = FLAGS_mean_value;
+    const string& file_type = FLAGS_file_type;
+    const string& out_file = FLAGS_out_file;
+    const float confidence_threshold = FLAGS_confidence_threshold;
 
-      /* Print the detection results. */
-      for (int i = 0; i < detections.size(); ++i) {
-        const vector<float>& d = detections[i];
-        // Detection format: [image_id, label, score, xmin, ymin, xmax, ymax].
-        CHECK_EQ(d.size(), 7);
-        const float score = d[2];
-        if (score >= confidence_threshold) {
-          out << file << " ";
-          out << static_cast<int>(d[1]) << " ";
-          out << score << " ";
-          out << static_cast<int>(d[3] * img.cols) << " ";
-          out << static_cast<int>(d[4] * img.rows) << " ";
-          out << static_cast<int>(d[5] * img.cols) << " ";
-          out << static_cast<int>(d[6] * img.rows) << std::endl;
-        }
-      }
-    } else if (file_type == "video") {
-      cv::VideoCapture cap(file);
-      if (!cap.isOpened()) {
-        LOG(FATAL) << "Failed to open video: " << file;
-      }
-      cv::Mat img;
-      int frame_count = 0;
-      while (true) {
-        bool success = cap.read(img);
-        if (!success) {
-          LOG(INFO) << "Process " << frame_count << " frames from " << file;
-          break;
-        }
-        CHECK(!img.empty()) << "Error when read frame";
-        std::vector<vector<float> > detections = detector.Detect(img);
+    // Initialize the network.
+    Detector detector(model_file, weights_file, mean_file, mean_value);
 
-        /* Print the detection results. */
-        for (int i = 0; i < detections.size(); ++i) {
-          const vector<float>& d = detections[i];
-          // Detection format: [image_id, label, score, xmin, ymin, xmax, ymax].
-          CHECK_EQ(d.size(), 7);
-          const float score = d[2];
-          if (score >= confidence_threshold) {
-            out << file << "_";
-            out << std::setfill('0') << std::setw(6) << frame_count << " ";
-            out << static_cast<int>(d[1]) << " ";
-            out << score << " ";
-            out << static_cast<int>(d[3] * img.cols) << " ";
-            out << static_cast<int>(d[4] * img.rows) << " ";
-            out << static_cast<int>(d[5] * img.cols) << " ";
-            out << static_cast<int>(d[6] * img.rows) << std::endl;
-          }
+    // Set the output mode.
+    std::streambuf* buf = std::cout.rdbuf();
+    std::ofstream outfile;
+    if (!out_file.empty()) {
+        outfile.open(out_file.c_str());
+        if (outfile.good()) {
+            buf = outfile.rdbuf();
         }
-        ++frame_count;
-      }
-      if (cap.isOpened()) {
-        cap.release();
-      }
-    } else {
-      LOG(FATAL) << "Unknown file_type: " << file_type;
     }
-  }
-  return 0;
+    std::ostream out(buf);
+
+    // Process image one by one.
+    std::ifstream infile(argv[3]);
+    std::string file;
+    while (infile >> file) {
+        std::cout << "file: " <<file << " file_type: " << file_type << std::endl;
+        if (file_type == "image") {
+            cv::Mat img = cv::imread(file, -1);
+            CHECK(!img.empty()) << "Unable to decode image " << file;
+            std::vector<vector<float> > detections = detector.Detect(img);
+
+            /* Print the detection results. */
+            for (int i = 0; i < detections.size(); ++i) {
+                const vector<float>& d = detections[i];
+                // Detection format: [image_id, label, score, xmin, ymin, xmax, ymax].
+                CHECK_EQ(d.size(), 7);
+                const float score = d[2];
+                if (score >= confidence_threshold) {
+                    out << file << " ";
+                    out << static_cast<int>(d[1]) << " ";
+                    out << score << " ";
+                    out << static_cast<int>(d[3] * img.cols) << " ";
+                    out << static_cast<int>(d[4] * img.rows) << " ";
+                    out << static_cast<int>(d[5] * img.cols) << " ";
+                    out << static_cast<int>(d[6] * img.rows) << std::endl;
+                }
+            }
+        } else if (file_type == "video") {
+            std::cout << "opening video..." << std::endl;
+            cv::VideoCapture cap;
+            cap.open(file);
+            if (!cap.isOpened()) {
+                LOG(FATAL) << "Failed to open video: " << file;
+            }
+            std::cout << "video opened." << std::endl;
+            cv::namedWindow("video", 1);
+            int frame_count = 0;
+            std::cout << "displaying video..." << std::endl;
+            cv::Mat img;
+            while (true) {
+
+                //cap >> img;
+
+                bool success = cap.read(img);
+                if (!success) {
+                    LOG(INFO) << "Process " << frame_count << " frames from " << file;
+                    break;
+                }
+                CHECK(!img.empty()) << "Error when read frame";
+
+                std::vector<vector<float> > detections = detector.Detect(img);
+
+                /* Print the detection results. */
+
+                for (int i = 0; i < detections.size(); ++i) {
+                    const vector<float>& d = detections[i];
+                    // Detection format: [image_id, label, score, xmin, ymin, xmax, ymax].
+                    CHECK_EQ(d.size(), 7);
+                    const float score = d[2];
+                    if (score >= confidence_threshold) {
+                        cv::Rect rect(d[3]*img.cols, d[4]*img.rows, d[5]*img.cols-d[3]*img.cols, d[6]*img.rows-d[4]*img.rows);
+                        cv::rectangle(img, rect, cv::Scalar(0, 255, 0), 1);
+                        out << file << "_";
+                        out << std::setfill('0') << std::setw(6) << frame_count << " ";
+                        out << static_cast<int>(d[1]) << " ";
+                        out << score << " ";
+                        out << static_cast<int>(d[3] * img.cols) << " ";
+                        out << static_cast<int>(d[4] * img.rows) << " ";
+                        out << static_cast<int>(d[5] * img.cols) << " ";
+                        out << static_cast<int>(d[6] * img.rows) << std::endl;
+                    }
+                }
+
+
+                cv::imshow("video", img);
+                std::cout << frame_count +1 << " frames were displayed." << std::endl;
+                ++frame_count;
+                int k = cv::waitKey(10);
+                printf("printf k = %d \n", k);
+                if(113 == k){ // q
+                  std::cout << "break~" << std::endl;
+                  break;
+                }
+
+
+            } // while loop
+            if (cap.isOpened()) {
+                cap.release();
+            }
+        } else {
+            LOG(FATAL) << "Unknown file_type: " << file_type;
+        }
+    }
+    return 0;
 }
 #else
 int main(int argc, char** argv) {
-  LOG(FATAL) << "This example requires OpenCV; compile with USE_OPENCV.";
+    LOG(FATAL) << "This example requires OpenCV; compile with USE_OPENCV.";
 }
 #endif  // USE_OPENCV
