@@ -55,7 +55,13 @@ Please cite SSD in your publications if it helps your research:
 
 2. Build 代码. 按照 [Caffe instruction](http://caffe.berkeleyvision.org/installation.html) 安装
   必要的packages，然后build。     
-  ```终端   
+  ```终端
+  # http://caffe.berkeleyvision.org/install_apt.html
+  sudo apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler  
+  sudo apt-get install --no-install-recommends libboost-all-dev   
+  # sudo apt-get install libatlas-base-dev
+  sudo apt-get install libopenblas-dev
+  sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
   # 根据Caffe安装的方式修改Makefile.config。
   cp Makefile.config.example Makefile.config
   make -j8
