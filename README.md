@@ -70,7 +70,10 @@ Please cite SSD in your publications if it helps your research:
   make test -j8
   # 运行测试，可选   
   make runtest -j8
-  ```
+  # 如果出现cannot find -lboost_python3的错误，执行
+  cd /usr/lib/x86_64-linux-gnu/   
+  sudo ln -s ./libboost_python-py35.so libboost_python3.so
+  ```
 
 ### 预备
 1. 下载 [fully convolutional reduced (atrous) VGGNet](https://gist.github.com/weiliu89/2ed6e13bfd5b57cf81d6). 假设文件被下载到了`$CAFFE_ROOT/models/VGGNet/`目录   
