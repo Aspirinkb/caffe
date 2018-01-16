@@ -70,7 +70,7 @@ Please cite SSD in your publications if it helps your research:
   # 3. 根据CUDA architecture setting对CUDA版本的提示，修改下面的CUDA_ARCH
   # 4. PYTHON_INCLUDE修改成：
   # PYTHON_INCLUDE := /usr/include/python3 \
-  #     /usr/lib/python3/dist-packages/numpy/core/include
+  #     /usr/local/lib/python3.5/dist-packages/numpy/core/include
   # 5. 去掉注释WITH_PYTHON_LAYER := 1
   # 6. INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial
   # 7. LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu/hdf5/serial
