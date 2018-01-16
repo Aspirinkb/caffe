@@ -62,14 +62,26 @@ Please cite SSD in your publications if it helps your research:
   # sudo apt-get install libatlas-base-dev
   sudo apt-get install libopenblas-dev
   sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
-  # 根据Caffe安装的方式修改Makefile.config。
+  # 创建Makefile.config   
   cp Makefile.config.example Makefile.config
-  make -j8
+  # 在进行下一步make之前，先修改Makefile.config
+  # 1. 去掉USE_CUDNN := 1的注释，因为我们使用了CUDA和cuDNN进行GPU加速
+  # 2. 去掉OPENCV_VERSION := 3的注释，因为我们安装了OpenCV3.4.0，没有使用OpenCV2.x
+  # 3. 根据CUDA architecture setting对CUDA版本的提示，修改下面的CUDA_ARCH
+  # 4. PYTHON_INCLUDE修改成：
+  # PYTHON_INCLUDE := /usr/include/python3 \
+  #     /usr/lib/python3/dist-packages/numpy/core/include
+  # 5. 去掉注释WITH_PYTHON_LAYER := 1
+  # 6. INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial
+  # 7. LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu/hdf5/serial
+  make all -j16
   # 确保include $CAFFE_ROOT/python到PYTHONPATH环境变量内.
-  make py
-  make test -j8
-  # 运行测试，可选   
-  make runtest -j8
+  make py   
+  make test -j16   
+  # 运行测试，可选   
+  make runtest -j16    
+  # 添加下面行到~/.bashrc，为python提供caffe调用路径(注意改写成自己的路径) 
+  export PYTHONPATH=/path/to/ssd/caffe/python/:$PYTHONPATH
   # 如果出现cannot find -lboost_python3的错误，执行
   cd /usr/lib/x86_64-linux-gnu/   
   sudo ln -s ./libboost_python-py35.so libboost_python3.so
