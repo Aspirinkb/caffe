@@ -60,6 +60,7 @@ def assign_proto(proto, name, val):
     repeated fields whose values are not lists are converted to single-element
     lists; e.g., `my_repeated_int_field=3` is converted to
     `my_repeated_int_field=[3]`."""
+    print("name: {0}, val: {1}".format(name, val))
 
     is_repeated_field = hasattr(getattr(proto, name), 'extend')
     if is_repeated_field and not isinstance(val, list):
@@ -71,6 +72,10 @@ def assign_proto(proto, name, val):
                 for k, v in six.iteritems(item):
                     assign_proto(proto_item, k, v)
         else:
+            if "pad" == name:
+                for i, v in enumerate(val):
+                    if type(v) is float:
+                        val[i] = int(v)
             getattr(proto, name).extend(val)
     elif isinstance(val, dict):
         for k, v in six.iteritems(val):
